@@ -41,8 +41,6 @@ def maalHoyde(name):
                 print(hoydeInn)
                 maalingerInn.append(hoydeInn)
             
-            # Teller antall poser som har gått inn
-            # Ber om gjennomsnittshøyden til posen og skriver til fil når posen ikke er under måleren
             if hoydeNy.find(poseInn) != -1 and len(maalingerInn) > 0:
                 """
                 Programmet teller antall poser som har gått inn i systemet
@@ -53,7 +51,6 @@ def maalHoyde(name):
                 filInn.write(f"{counterInn}, {gjennomsnittInn}, {len(maalingerInn)}\n ")
                 maalingerInn.clear()
             
-            # ser etter poser som går ut
             if hoydeNy.find(ut) != -1:
                 """ 
                 Programmet ser etter poser som går ut av systemet
@@ -122,6 +119,3 @@ args = vars(ap.parse_args())
 PORT = args['port']
 
 maalHoyde(PORT)
-
-# lengde potmeter: 5.2 cm
-# sudo python3 lesHoyde.py -p "portnavn" -sz "størrelse"
