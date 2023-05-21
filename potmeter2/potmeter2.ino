@@ -7,16 +7,15 @@ int nummer = 1;
 int poseNr = 1;
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
 }
 
 void loop() {
-  /*
-  Mapper potensiometerene fra 0 til 200.
-  Sjekker om verdien på de er over 1, hvis ja printes det sammen med henholdsvis "inn" og "ut" for å skille mellom de.
-  Dette fjernes senere i Python-programmet.
-  "PoseI" og "PoseU" printes hvis de ikke måler noe og trigger en if-løkke i Python-programmet om at posen ikke lenger måles.
+  /*!
+  *Mapper potensiometerene fra 0 til 200.
+  *Sjekker om verdien på de er over 1, hvis ja printes det sammen med henholdsvis "inn" og "ut" for å skille mellom de.
+  *Dette fjernes senere i Python-programmet.
+  *"PoseI" og "PoseU" printes hvis de ikke måler noe og trigger en if-løkke i Python-programmet om at posen ikke lenger måles.
   */
   potVal = analogRead(potPin);
   potVal2 = analogRead(potPin2);

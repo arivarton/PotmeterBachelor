@@ -1,7 +1,17 @@
-"""
-Program for å lese høyde fra potmeter som er koblet til Arduino og skrive til fil.
-Programmet sammenligner også høydene på posene som går inn og ut av systemet og skriver til fil som skal vises på GUI.
-"""
+##
+# @mainpage Description 
+# Python program for reading height from potentiometer connected to Arduino and writing said data to .csv-file.
+# The program also compares the heights of the bags that go in and out of the system and writes to another file that will be displayed on the GUI.
+# \n Copyrigth (c) 2023 HOLDT - Hull og Lekkasje Deteksjons Teknologi. All rights reserved.
+
+##
+# @file lesHoyde.py
+# @brief Python program for measuring height of snack bags.
+#
+# @section author_doxygen Author (s)
+# - Kristoffer Solheim
+
+# Imports
 import serial 
 import argparse
 import datetime
@@ -12,9 +22,8 @@ counterInn = 0
 counterUt = 0
 
 def maalHoyde(name): 
-    """
-    Mål høyde og skriv til fil 
-    name: navnet på porten som skal brukes
+    """!Measures height and writes to file. 
+    @param name: name of the port to be used
     """
     global counterInn, counterUt
     inn = "Inn"
@@ -23,28 +32,22 @@ def maalHoyde(name):
     poseUt = "PoseU"
     dato = datetime.datetime.now().date()
     try:
-        """
-        Prøver å koble til porten
-        """
+        """!Try to connect to the port and creates files for writing."""
         serial_port = serial.Serial(name,9600)
-        print(f"The Port name is {serial_port.name}")
         filInn = open(f"{dato}Inn.csv", "w")
         filUt = open(f"{dato}Ut.csv", "w")
         while True:
             hoyde = serial_port.readline()
             hoydeNy = hoyde.decode("utf-8")
             if hoydeNy.find(inn) != -1:
-                """
-                Programmet ser etter poser som går inn i systemet
-                """
+                """!Looks for bags that go in to the system."""
                 hoydeInn = hoydeNy.replace("Inn", "")
                 print(hoydeInn)
                 maalingerInn.append(hoydeInn)
             
             if hoydeNy.find(poseInn) != -1 and len(maalingerInn) > 0:
-                """
-                Programmet teller antall poser som har gått inn i systemet
-                Programmet ber om gjennomsnittshøyden til posen og skriver til fil når posen ikke er under måleren
+                """!Counts the number of bags that have gone in to the system. 
+                Asks for the average height of the bag and writes to file when the bag is no longer under the sensor.
                 """
                 counterInn += 1
                 gjennomsnittInn = regnGjennomsnitt(maalingerInn)
@@ -52,17 +55,14 @@ def maalHoyde(name):
                 maalingerInn.clear()
             
             if hoydeNy.find(ut) != -1:
-                """ 
-                Programmet ser etter poser som går ut av systemet
-                """
+                """!Looks for bags that go out of the system."""
                 hoydeUt = hoydeNy.replace("Ut", "")
                 print(hoydeUt)
                 maalingerUt.append(hoydeUt)
             
             if hoydeNy.find(poseUt) != -1 and len(maalingerUt) > 0:
-                """
-                Programmet teller antall poser som har gått ut av systemet
-                Programmet ber om gjennomsnittshøyden til posen og skriver til fil når posen ikke er under måleren
+                """!Counts the number of bags that have gone out of the system.
+                Asks for the average height of the bag and writes to file when the bag is no longer under the sensor.                
                 """
                 counterUt += 1
                 gjennomsnittUt = regnGjennomsnitt(maalingerUt)
@@ -70,17 +70,15 @@ def maalHoyde(name):
                 maalingerUt.clear()
                 sammenlignHoyde(filInn, filUt, counterUt, dato)
     except:
-        """
-        Hvis det ikke er mulig å koble til porten
-        """
+        """!If it is not possible to connect to the port."""
         print("ERROR")
         print("Sjekk port") # Vanligste feil er portnavn
         exit()
 
 def regnGjennomsnitt(maalinger):
-    """ 
-    Regner ut gjennomsnittet av målingene som har blitt gjort på posen 
-    maalinger: liste med målinger
+    """!Calculates the average of the measurements that have been made on the bag.
+    @param maalinger: list of measurements
+    @return gjennomsnitt: average of the measurements
     """
     gjennomsnitt = 0
     for i in range(len(maalinger)):
@@ -89,13 +87,12 @@ def regnGjennomsnitt(maalinger):
     return gjennomsnitt
 
 def sammenlignHoyde(filInn, filUt, counterUt, dato):
-    """
-    Sammenligner høyden til posen på vei inn og ut av systemet
-    Skriver til fil med posenummer, høyde inn, høyde ut og lekkasje som skal vises på GUI
-    filInn: filen som inneholder høyden til posen på vei inn i systemet
-    filUt: filen som inneholder høyden til posen på vei ut av systemet
-    counterUt: teller for å vite hvilken pose som skal sammenlignes
-    dato: dato for å skille mellom filer
+    """!Compares the height of the bag on the way in and out of the system.
+    Writes to file with bag number, height in, height out and leakage to be displayed on the GUI.
+    @param filInn: file containing the height of the bag on the way in to the system
+    @param filUt: file containing the height of the bag on the way out of the system
+    @param counterUt: counter to know which bag to compare
+    @param dato: date to distinguish between files
     """
     filInn = open(f"{dato}Inn.csv", "r")
     filUt = open(f"{dato}Ut.csv", "r")
@@ -108,9 +105,7 @@ def sammenlignHoyde(filInn, filUt, counterUt, dato):
     filUt.close()
     filSammenlign.close()
 
-"""
-Argumentparser, tar inn portnavn og størrelse på posen
-"""
+"""!Argumentparser for port name and bag size."""
 ap = argparse.ArgumentParser()
 ap.add_argument("-p","--port",required = True, help = "Enter Port Name")
 ap.add_argument("-sz","--size",required = False, help = "Enter Size of the Bag")
