@@ -1,5 +1,5 @@
-int potPin = A8; //A0
-int potPin2 = A0; //A0
+int potPin = A0; //A0
+int potPin2 = A8; //A0
 int potVal = 0;
 int potVal2 = 0;
 bool pose = false;
@@ -22,7 +22,7 @@ void loop() {
   byte mappedValue = map(potVal, 0, 1023, 200, 0);
   byte mappedValue2 = map(potVal2, 0, 1023, 200, 0);
   
-  if(mappedValue >= 1){
+  if(mappedValue >= 43){
     pose = true;
     nummer += 1;
     Serial.print("Inn");
@@ -31,7 +31,7 @@ void loop() {
   else{
     Serial.println("PoseI");
   }
-  if(mappedValue2 >= 1){
+  if(mappedValue2 >= 49){
     Serial.print("Ut");
     Serial.println(mappedValue2);
   }

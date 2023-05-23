@@ -15,6 +15,7 @@
 import serial 
 import argparse
 import datetime
+import csv
 
 maalingerInn = []
 maalingerUt = []
@@ -30,12 +31,14 @@ def maalHoyde(name):
     ut = "Ut"
     poseInn = "PoseI"
     poseUt = "PoseU"
+    sammenlignetListe = []
+    maxUt = []
+    maxInn = []
     dato = datetime.datetime.now().date()
     try:
         """!Try to connect to the port and creates files for writing."""
         serial_port = serial.Serial(name,9600)
-        filInn = open(f"{dato}Inn.csv", "w")
-        filUt = open(f"{dato}Ut.csv", "w")
+
         while True:
             hoyde = serial_port.readline()
             hoydeNy = hoyde.decode("utf-8")
@@ -44,6 +47,7 @@ def maalHoyde(name):
                 hoydeInn = hoydeNy.replace("Inn", "")
                 print(hoydeInn)
                 maalingerInn.append(hoydeInn)
+                
             
             if hoydeNy.find(poseInn) != -1 and len(maalingerInn) > 0:
                 """!Counts the number of bags that have gone in to the system. 
@@ -51,8 +55,11 @@ def maalHoyde(name):
                 """
                 counterInn += 1
                 gjennomsnittInn = regnGjennomsnitt(maalingerInn)
-                filInn.write(f"{counterInn}, {gjennomsnittInn}, {len(maalingerInn)}\n ")
+                filInn = open(f"{dato}Inn.csv", "a")
+                maxInn.append(max(maalingerInn))
+                filInn.write(f"{counterInn}, {maxInn[counterInn]}, {gjennomsnittInn}, {len(maalingerInn)}\n ")
                 maalingerInn.clear()
+                filInn.close()
             
             if hoydeNy.find(ut) != -1:
                 """!Looks for bags that go out of the system."""
@@ -64,11 +71,31 @@ def maalHoyde(name):
                 """!Counts the number of bags that have gone out of the system.
                 Asks for the average height of the bag and writes to file when the bag is no longer under the sensor.                
                 """
+                filUt = open(f"{dato}Ut.csv", "a")
                 counterUt += 1
-                gjennomsnittUt = regnGjennomsnitt(maalingerUt)
-                filUt.write(f"{counterUt}, {gjennomsnittUt}, {len(maalingerUt)}\n ")
+                #gjennomsnittUt = regnGjennomsnitt(maalingerUt)
+                maxUt.append(max(maalingerUt))
+                filUt.write(f"{counterUt}, {maxUt[counterUt]}, {len(maalingerUt)}\n ")
                 maalingerUt.clear()
-                sammenlignHoyde(filInn, filUt, counterUt, dato)
+                filUt.close()
+                # compare height of bag in and bag out without using "sammenlignHoyde()" with
+                if counterInn == counterUt or counterInn > counterUt:
+                    filSammenlignet = open(f"{dato}Sammenlignet.csv", "a")
+                    sammenlignet = float(maxInn[counterUt-1]) - float(maxUt[counterUt-1])
+                    sammenlignetListe.append(sammenlignet)
+                    if sammenlignetListe[counterUt-1] < 1:
+                        filSammenlignet.write(f"{counterUt}, {sammenlignet}, Godkjent\n")
+                        print(f"Godkjent: {sammenlignet}")
+                        filSammenlignet.close()
+                    else:
+                        filSammenlignet.write(f"{counterUt}, {sammenlignet}, Underkjent\n")
+                        print(f"Underkjent: {sammenlignet}")
+                        filSammenlignet.close()
+
+                else:
+                    # dont crash
+                    print("Fillern")
+
     except:
         """!If it is not possible to connect to the port."""
         print("ERROR")
@@ -86,31 +113,50 @@ def regnGjennomsnitt(maalinger):
     gjennomsnitt = gjennomsnitt/len(maalinger)
     return gjennomsnitt
 
-def sammenlignHoyde(filInn, filUt, counterUt, dato):
-    """!Compares the height of the bag on the way in and out of the system.
-    Writes to file with bag number, height in, height out and leakage to be displayed on the GUI.
-    @param filInn: file containing the height of the bag on the way in to the system
-    @param filUt: file containing the height of the bag on the way out of the system
-    @param counterUt: counter to know which bag to compare
-    @param dato: date to distinguish between files
-    """
-    filInn = open(f"{dato}Inn.csv", "r")
-    filUt = open(f"{dato}Ut.csv", "r")
-    inn = filInn.readlines()
-    ut = filUt.readlines()
-    lekkasje = float(inn[counterUt][1]) - float(ut[counterUt][1])
-    filSammenlign = open(f"{dato}Sammenlign.csv", "a")
-    filSammenlign.write(f"{counterUt}, {[counterUt][1]}, {ut[counterUt][1]}, {lekkasje}\n") 
-    filInn.close()
-    filUt.close()
-    filSammenlign.close()
+def sammenlignHoyde():
+    dato = datetime.datetime.now().date()
+    inn = []
+    ut = []
+    sammenlignetListe = []
+    kvalitet = []
+    antallPoser = 0
+    filInn = csv.reader(f"{dato}Inn.csv", delimiter=",")
+    filUt = csv.reader(f"{dato}Ut.csv", delimiter=",")
+
+    with open(f"{dato}Inn.csv", "r") as filInn:
+        innLes = csv.reader(filInn, delimiter=",")
+        for row in innLes:
+            inn.append(row)
+    with open(f"{dato}Ut.csv", "r") as filUt:
+        utLes = csv.reader(filUt, delimiter=",")
+        for row in utLes:
+            ut.append(row)
+
+    # sjekk om inn[i][1] == ut[i][1]
+    for i in range(len(inn)):
+        sammenlignet = float(inn[i][1]) - float(ut[i][1])
+        sammenlignetListe.append(sammenlignet)
+        if inn[i][1] == ut[i][1]: # juster
+            print("Jippi")
+            kvalitet.append("Godkjent")
+        else:
+            print("Fillern")
+            kvalitet.append("Underkjent")
+
+    """print(sammenlignetListe)
+    for i in range(len(utLes)):
+        sammenlignetFil = open(f"{dato}Sammenlignet.csv", "a")
+        antallPoser += 1
+        sammenlignetFil.write(f"{antallPoser}, {sammenlignetListe[i]}, {kvalitet[i]} \n")
+        sammenlignetFil.close()"""
+
+    
+    
 
 """!Argumentparser for port name and bag size."""
 ap = argparse.ArgumentParser()
 ap.add_argument("-p","--port",required = True, help = "Enter Port Name")
-ap.add_argument("-sz","--size",required = False, help = "Enter Size of the Bag")
 args = vars(ap.parse_args())
-
 PORT = args['port']
 
 maalHoyde(PORT)
