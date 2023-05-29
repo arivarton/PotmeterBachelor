@@ -5,10 +5,10 @@ import serial
 from multiprocessing import Process
 import argparse
 
-"""ap = argparse.ArgumentParser()
+ap = argparse.ArgumentParser()
 ap.add_argument("--rpm",required = True, help = "Enter rpm")
 args = vars(ap.parse_args())
-rpm = args['rpm']"""
+rpm = args['rpm']
 
 def CheckPhotoCell(oldState, new_state):
     if oldState and oldState != new_state:
@@ -19,7 +19,7 @@ def CheckPhotoCell(oldState, new_state):
 serial_port = serial.Serial("ttyAM0",9600)
 measurementsIn = []
 measurementsOut = []
-#speed = 3.14 * 46 * rpm / 60
+speed = 3.14 * 46 * rpm / 60
 
 def measureIn():
     if heightDecode.find("Inn") != -1 and start - time.time() < 5:
