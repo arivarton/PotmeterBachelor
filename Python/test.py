@@ -1,8 +1,8 @@
-import time
+import serial
 
-start = time.time()
-
+serial_port = serial.Serial("/dev/cu.usbmodem113101",9600)
 while True:
-    if time.time() - start > 5:
-        print("5 seconds passed")
-        start = time.time()
+    if heightDecode.find("Inn") != -1:
+        height = serial_port.readline()
+        heightDecode = height.decode("utf-8")
+        print(heightDecode)

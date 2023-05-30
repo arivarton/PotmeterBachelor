@@ -6,4 +6,4 @@ with open("measurementsOut.csv", "r") as original2: data2 = original2.readlines(
 with open("measurements.csv", "w") as modified:
     modified.write("Inn,Ut\n")
     for i in range(len(data1)):
-        modified.write(f"{data1[i]}{data2[i]}")
+        modified.write(f"{data1[i].replace(',', '')},{data2[i].replace(',', '')}")

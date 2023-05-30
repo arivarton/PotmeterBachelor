@@ -26,7 +26,7 @@ def measureIn():
         heightIn = heightDecode.replace("Inn", "")
         print(heightIn)
         measurementsIn.append(float(heightIn))
-    if start - time.time() > 5
+    if start - time.time() > 5:
         maxIn = max(measurementsIn)
         with open("measurementsIn.csv", "a") as f:
             for item in measurementsIn:
@@ -63,3 +63,6 @@ if __name__ == "__main__":
         start = time.time()
         measure1.start()
         measure2.start()
+
+# tanken er at denne skal ligge å måle hele tiden, mens et annet program leser fra filene
+# og skriver til en annen fil som kan brukes til å plotte i guien
