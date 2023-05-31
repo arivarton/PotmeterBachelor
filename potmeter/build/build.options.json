@@ -1,0 +1,10 @@
+{
+  "additionalFiles": "",
+  "builtInToolsFolders": "",
+  "compiler.optimization_flags": "",
+  "customBuildProperties": "",
+  "fqbn": "arduino:avr:mega:cpu=atmega2560",
+  "hardwareFolders": "/home/vidr/.arduino15/packages",
+  "otherLibrariesFolders": "/home/vidr/Arduino/libraries",
+  "sketchLocation": "/home/vidr/dev/bachelor2023/PotmeterBachelor/potmeter2"
+}
